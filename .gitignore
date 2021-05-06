@@ -365,7 +365,10 @@ FodyWeavers.xsd
 test/
 FluidumVK/
 Debug/
-.sln
-.vcxproj
-.filters
-.user
+*.sln
+*.vcxproj
+*.filters
+*.user
+*.gitmodules
+*.gitattributes
+*.gitignore
