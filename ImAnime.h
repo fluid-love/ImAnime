@@ -45,13 +45,13 @@ ImGuiの既存の関数を利用しているだけで,ImGui内部の情報を直接いじることはない.
 Global Namespace:
 	型名             :ImSecond ImAnimeTime ImAnimeCountType
 	コンセプト名     :ImAnimeCounterType
-	class enum ...名 :ImCounter ImAnimeType ImAnimeFlags ImAnimeCond ImAnimePop ImCounterCond
+	class enum ...名 :ImCounter ImAnimeType ImAnimePop ImCounterCond
 */
 
 /*
 List Functions:
 
-namespace ImGui
+namespace ImAnime
 ver1.0.0
 	PushStyleColor
 	PushStyleVar
@@ -60,11 +60,6 @@ ver1.0.0
 	SetNextItemWidth
 	Dummy
 
-namespace ImAnime
-ver1.0.0
-	FadeInButton
-	SlideInButton
-	FrameBorderButton
 
 */
 
@@ -689,5 +684,12 @@ namespace ImAnime {
 	template<ImAnimeCounterType Counter>
 	using SetNextItemSize = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_ITEM_WIDTH, float, Counter>;
 
+	void PopStyleColor(int count = 1) {
+		ImGui::PopStyleColor(count);
+	}
+
+	void PopStyleVar(int count = 1) {
+		ImGui::PopStyleVar(count);
+	}
 
 }
