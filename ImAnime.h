@@ -468,56 +468,56 @@ namespace ImAnime::Internal {
 //operator
 namespace ImAnime::Internal {
 
-	ImVec2 operator+(const ImVec2& l, const ImVec2& r) {
+	inline ImVec2 operator+(const ImVec2& l, const ImVec2& r) {
 		return ImVec2(l.x + r.x, l.y + r.y);
 	}
-	ImVec2 operator-(const ImVec2& l, const ImVec2& r) {
+	inline ImVec2 operator-(const ImVec2& l, const ImVec2& r) {
 		return ImVec2(l.x - r.x, l.y - r.y);
 	}
-	ImVec2 operator*(const ImVec2& l, const ImVec2& r) {
+	inline ImVec2 operator*(const ImVec2& l, const ImVec2& r) {
 		return ImVec2(l.x * r.x, l.y * r.y);
 	}
-	ImVec2 operator/(const ImVec2& l, const ImVec2& r) {
+	inline ImVec2 operator/(const ImVec2& l, const ImVec2& r) {
 		return ImVec2(l.x / r.x, l.y / r.y);
 	}
 
-	ImVec2 operator+(const ImVec2& l, const float r) {
+	inline ImVec2 operator+(const ImVec2& l, const float r) {
 		return ImVec2(l.x + r, l.y + r);
 	}
-	ImVec2 operator-(const ImVec2& l, const float r) {
+	inline ImVec2 operator-(const ImVec2& l, const float r) {
 		return ImVec2(l.x - r, l.y - r);
 	}
-	ImVec2 operator*(const ImVec2& l, const float r) {
+	inline ImVec2 operator*(const ImVec2& l, const float r) {
 		return ImVec2(l.x * r, l.y * r);
 	}
-	ImVec2 operator/(const ImVec2& l, const float r) {
+	inline ImVec2 operator/(const ImVec2& l, const float r) {
 		return ImVec2(l.x / r, l.y / r);
 	}
 
 
-	ImVec4 operator+(const ImVec4& l, const ImVec4& r) {
+	inline ImVec4 operator+(const ImVec4& l, const ImVec4& r) {
 		return ImVec4(l.x + r.x, l.y + r.y, l.z + r.z, l.w + r.w);
 	}
-	ImVec4 operator-(const ImVec4& l, const ImVec4& r) {
+	inline ImVec4 operator-(const ImVec4& l, const ImVec4& r) {
 		return ImVec4(l.x - r.x, l.y - r.y, l.z - r.z, l.w - r.w);
 	}
-	ImVec4 operator*(const ImVec4& l, const ImVec4& r) {
+	inline ImVec4 operator*(const ImVec4& l, const ImVec4& r) {
 		return ImVec4(l.x * r.x, l.y * r.y, l.z * r.z, l.w * r.w);
 	}
-	ImVec4 operator/(const ImVec4& l, const ImVec4& r) {
+	inline ImVec4 operator/(const ImVec4& l, const ImVec4& r) {
 		return ImVec4(l.x / r.x, l.y / r.y, l.z / r.z, l.w / r.w);
 	}
 
-	ImVec4 operator+(const ImVec4& l, const float r) {
+	inline ImVec4 operator+(const ImVec4& l, const float r) {
 		return ImVec4(l.x + r, l.y + r, l.z + r, l.w + r);
 	}
-	ImVec4 operator-(const ImVec4& l, const float r) {
+	inline ImVec4 operator-(const ImVec4& l, const float r) {
 		return ImVec4(l.x - r, l.y - r, l.z - r, l.w - r);
 	}
-	ImVec4 operator*(const ImVec4& l, const float r) {
+	inline ImVec4 operator*(const ImVec4& l, const float r) {
 		return ImVec4(l.x * r, l.y * r, l.z * r, l.w * r);
 	}
-	ImVec4 operator/(const ImVec4& l, const float r) {
+	inline ImVec4 operator/(const ImVec4& l, const float r) {
 		return ImVec4(l.x / r, l.y / r, l.z / r, l.w / r);
 	}
 
@@ -683,11 +683,11 @@ namespace ImAnime {
 	template<ImAnimeCounterType Counter>
 	using SetNextItemSize = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_ITEM_WIDTH, float, Counter>;
 
-	void PopStyleColor(int count = 1) {
+	inline void PopStyleColor(int count = 1) {
 		ImGui::PopStyleColor(count);
 	}
 
-	void PopStyleVar(int count = 1) {
+	inline void PopStyleVar(int count = 1) {
 		ImGui::PopStyleVar(count);
 	}
 
