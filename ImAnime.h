@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 MIT License
 
 Copyright (c) 2019-2020 fluid-love
@@ -27,23 +27,23 @@ SOFTWARE.
 #pragma once
 /*
 ImAnime Version:
-	ver1.0.0 ƒŠƒŠ[ƒX 2021/05/07
+	ver1.0.0 ãƒªãƒªãƒ¼ã‚¹ 2021/05/07
 
 */
 
 /*
-ImGui‚ÌŠù‘¶‚ÌŠÖ”‚ğ—˜—p‚µ‚Ä‚¢‚é‚¾‚¯‚Å,ImGui“à•”‚Ìî•ñ‚ğ’¼Ú‚¢‚¶‚é‚±‚Æ‚Í‚È‚¢.
+ImGuiã®æ—¢å­˜ã®é–¢æ•°ã‚’åˆ©ç”¨ã—ã¦ã„ã‚‹ã ã‘ã§,ImGuiå†…éƒ¨ã®æƒ…å ±ã‚’ç›´æ¥ã„ã˜ã‚‹ã“ã¨ã¯ãªã„.
 
-–¼‘O‹óŠÔ‚ÍImAnime‚ÆImAnime::Internal.
-–¼‘O‹óŠÔImAnime::Internal‚ÍŒÄ‚Ño‚³‚È‚¢‚±‚Æ.
+åå‰ç©ºé–“ã¯ImAnimeã¨ImAnime::Internal.
+åå‰ç©ºé–“ImAnime::Internalã¯å‘¼ã³å‡ºã•ãªã„ã“ã¨.
 
 */
 
 /*
 Global Namespace:
-	Œ^–¼             :ImSecond ImAnimeTime ImAnimeCountType
-	ƒRƒ“ƒZƒvƒg–¼     :ImAnimeCounterType
-	class enum ...–¼ :ImCounter ImAnimeType ImAnimePop ImCounterCond
+	å‹å             :ImSecond ImAnimeTime ImAnimeCountType
+	ã‚³ãƒ³ã‚»ãƒ—ãƒˆå     :ImAnimeCounterType
+	class enum ...å :ImCounter ImAnimeType ImAnimePop ImCounterCond
 */
 
 /*
@@ -76,23 +76,23 @@ ver1.0.0
 using ImAnimeTime = std::chrono::steady_clock::time_point;
 using ImAnimeSecond = float;
 
-//‘O•ûéŒ¾
+//å‰æ–¹å®£è¨€
 namespace ImAnime::Internal {
 	class CounterManager;
 }
 
-//”ñ•‰®”‚ÆŠÔ‚É‘Î‰
+//éè² æ•´æ•°ã¨æ™‚é–“ã«å¯¾å¿œ
 template<typename T>
 concept ImAnimeCounterType = std::unsigned_integral<T> || std::same_as<T, ImAnimeTime>;
 
-//T‚ªImAnimeSecond‚È‚çfloat(ŠÔ(s))‚ğ@‚»‚¤‚Å‚È‚¯‚ê‚ÎTŒ^(”ñ•‰®”)
+//TãŒImAnimeSecondãªã‚‰float(æ™‚é–“(s))ã‚’ã€€ãã†ã§ãªã‘ã‚Œã°Tå‹(éè² æ•´æ•°)
 template<typename T>
 using ImAnimeCountType = std::conditional_t<std::is_same_v<T, ImAnimeTime>, ImAnimeSecond, T>;
 
-//ImAnime::Internal“à‚ÌŠÖ”“™‚Í—˜—p‚µ‚È‚¢‚±‚Æ.
+//ImAnime::Internalå†…ã®é–¢æ•°ç­‰ã¯åˆ©ç”¨ã—ãªã„ã“ã¨.
 namespace ImAnime::Internal {
 
-	//enum class(flags)‚ÌŠî’ê	
+	//enum class(flags)ã®åŸºåº•	
 	using FlagUnderlyingType = uint16_t;
 
 	//time point
@@ -100,34 +100,34 @@ namespace ImAnime::Internal {
 }
 
 enum class ImCounterCond : ImAnime::Internal::FlagUnderlyingType {
-	NONE = 0x0000,    //ˆê‰ñ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“ƒ‹[ƒv‚ÅI‚í‚è I‚í‚Á‚½Œã‚àƒJƒEƒ“ƒg‚Íi‚İ‘±‚¯‚é 
-	REVERSE = 0x0001, //’ˆÓ:ƒJƒEƒ“ƒg‚Í‹t‚É‚È‚ç‚È‚¢
-	PAUSE = 0x0002,   //ˆê’â~ ƒJƒEƒ“ƒg‚Í’â~‚·‚é
-	REPEAT = 0x0004,  //ŒJ‚è•Ô‚· ƒJƒEƒ“ƒg‚ÍƒŠƒZƒbƒg‚³‚ê‚é–ˆ‚É0‚É–ß‚é
+	NONE = 0x0000,    //ä¸€å›ã®ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ãƒ«ãƒ¼ãƒ—ã§çµ‚ã‚ã‚Š çµ‚ã‚ã£ãŸå¾Œã‚‚ã‚«ã‚¦ãƒ³ãƒˆã¯é€²ã¿ç¶šã‘ã‚‹ 
+	REVERSE = 0x0001, //æ³¨æ„:ã‚«ã‚¦ãƒ³ãƒˆã¯é€†ã«ãªã‚‰ãªã„
+	PAUSE = 0x0002,   //ä¸€æ™‚åœæ­¢ ã‚«ã‚¦ãƒ³ãƒˆã¯åœæ­¢ã™ã‚‹
+	REPEAT = 0x0004,  //ç¹°ã‚Šè¿”ã™ ã‚«ã‚¦ãƒ³ãƒˆã¯ãƒªã‚»ãƒƒãƒˆã•ã‚Œã‚‹æ¯ã«0ã«æˆ»ã‚‹
 };
 
-//–¼‘O‹óŠÔImAnime‚Å’è‹`‚³‚ê‚éŠÖ”‚Åpop‚·‚é•K—v‚ª‚ ‚é‚à‚Ì‚Í‚±‚ê‚ğ•Ô‚·.
+//åå‰ç©ºé–“ImAnimeã§å®šç¾©ã•ã‚Œã‚‹é–¢æ•°ã§popã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã‚‚ã®ã¯ã“ã‚Œã‚’è¿”ã™.
 struct ImAnimePop {
 	uint16_t colorCount = 0;
 	uint16_t varCount = 0;
 };
 
 enum class ImAnimeType : ImAnime::Internal::FlagUnderlyingType {
-	LINEAR,//’¼ü‚É–Ú“I‚Ì’l‚Ü‚Å•Ï‰»‚³‚¹‚é.
-	SQUARE //y=x*x‚Å•Ï‰»‚³‚¹‚é.
+	LINEAR,//ç›´ç·šã«ç›®çš„ã®å€¤ã¾ã§å¤‰åŒ–ã•ã›ã‚‹.
+	SQUARE //y=x*xã§å¤‰åŒ–ã•ã›ã‚‹.
 };
 
 
 namespace ImAnime::Internal {
-	//Šî’êŒ^
+	//åŸºåº•å‹
 	template<typename T>
 	using UnderlyingType = std::underlying_type_t<T>;
 
-	//operator‚ğ’è‹`‚·‚éenum‚ğw’è
+	//operatorã‚’å®šç¾©ã™ã‚‹enumã‚’æŒ‡å®š
 	template<typename T>
 	concept EnumType =
-		std::is_same_v<UnderlyingType<T>, ImAnime::Internal::FlagUnderlyingType> &&//Šî’ê‚ªFlagBaseType‚Å‚ ‚é‚±‚Æ.
-		std::is_same_v<T, ImCounterCond>;//w’è‚³‚ê‚½enum classˆÈŠO‚ÍNG.
+		std::is_same_v<UnderlyingType<T>, ImAnime::Internal::FlagUnderlyingType> &&//åŸºåº•ãŒFlagBaseTypeã§ã‚ã‚‹ã“ã¨.
+		std::is_same_v<T, ImCounterCond>;//æŒ‡å®šã•ã‚ŒãŸenum classä»¥å¤–ã¯NG.
 
 	//operators
 	template<EnumType EnumClass>
@@ -179,11 +179,11 @@ using ImAnime::Internal::operator==;
 
 //counter
 /*
-ƒ†[ƒU‚Í‚±‚ê‚ğ•Û‚·‚é•K—v‚ª‚ ‚é.
-count‚Í‚»‚ÌŒ^‚Å•\Œ»‚Å‚«‚éÅ‘å’l‚æ‚è¬‚³‚¢ê‡‚ÍƒJƒEƒ“ƒg‚³‚ê‘±‚¯‚é.
-Šî–{“I‚É“à•”‚ÌƒJƒEƒ“ƒg‚Í’¼Ú‚¢‚¶‚ê‚È‚¢‚æ‚¤‚É‚µ‚Ä‚ ‚éD
+ãƒ¦ãƒ¼ã‚¶ã¯ã“ã‚Œã‚’ä¿æŒã™ã‚‹å¿…è¦ãŒã‚ã‚‹.
+countã¯ãã®å‹ã§è¡¨ç¾ã§ãã‚‹æœ€å¤§å€¤ã‚ˆã‚Šå°ã•ã„å ´åˆã¯ã‚«ã‚¦ãƒ³ãƒˆã•ã‚Œç¶šã‘ã‚‹.
+åŸºæœ¬çš„ã«å†…éƒ¨ã®ã‚«ã‚¦ãƒ³ãƒˆã¯ç›´æ¥ã„ã˜ã‚Œãªã„ã‚ˆã†ã«ã—ã¦ã‚ã‚‹ï¼
 
-Œ^ˆø”‚ÍŠÔ(s)‚ğƒfƒtƒHƒ‹ƒg‚Åw’è
+å‹å¼•æ•°ã¯æ™‚é–“(s)ã‚’ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§æŒ‡å®š
 */
 template<ImAnimeCounterType Type>
 class ImCounter final {
@@ -196,9 +196,9 @@ public:
 	~ImCounter() = default;
 
 
-private://•â•
+private://è£œåŠ©
 
-	//Œ»İ‚ÌƒJƒEƒ“ƒg(ŠÔ‚Ìê‡)‚ğŒvZ
+	//ç¾åœ¨ã®ã‚«ã‚¦ãƒ³ãƒˆ(æ™‚é–“ã®å ´åˆ)ã‚’è¨ˆç®—
 	float getCurrentTime() {
 		static_assert(!std::unsigned_integral<Type>, "ERROR: getCurrentTime.");
 
@@ -206,7 +206,7 @@ private://•â•
 
 		using Duration = std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>;
 
-		//pause’†
+		//pauseä¸­
 		if (isUp(ImCounterCond::PAUSE)) {
 			if (isPause) {
 				time = Duration(count - ImAnime::Internal::TimePoint()).count();
@@ -227,9 +227,9 @@ private://•â•
 	}
 
 public:
-	//ƒJƒEƒ“ƒg‚ğæ“¾ ŠÔ‚ÅŠÇ—->•b(s) ƒJƒEƒ“ƒg‚ÅŠÇ—->‰ñ”
+	//ã‚«ã‚¦ãƒ³ãƒˆã‚’å–å¾— æ™‚é–“ã§ç®¡ç†->ç§’(s) ã‚«ã‚¦ãƒ³ãƒˆã§ç®¡ç†->å›æ•°
 	ImAnimeCountType<Type> getCurrentCount() {
-		//‰ñ”‚ÅƒJƒEƒ“ƒg‚·‚é‚È‚ç‚»‚Ì‚Ü‚Ü•Ô‚·‚ª,ŠÔ‚Ìê‡‚ÍŠÔ‚ğŒvZ‚µ‚Ä•Ô‚·.
+		//å›æ•°ã§ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹ãªã‚‰ãã®ã¾ã¾è¿”ã™ãŒ,æ™‚é–“ã®å ´åˆã¯æ™‚é–“ã‚’è¨ˆç®—ã—ã¦è¿”ã™.
 		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>) {
 			return count;
 		}
@@ -238,7 +238,7 @@ public:
 		}
 	}
 
-	//reset count‚ğ0‚É‚·‚é.
+	//reset countã‚’0ã«ã™ã‚‹.
 	void reset() {
 		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>) {
 			count = 0;
@@ -248,29 +248,29 @@ public:
 		}
 	}
 
-	//condition‚ğƒZƒbƒg.
+	//conditionã‚’ã‚»ãƒƒãƒˆ.
 	void changeCondition(const ImCounterCond condition) {
 		this->condition = condition;
 	}
 
-	//ã‚°‚é
+	//ä¸Šã’ã‚‹
 	void up(const ImCounterCond condition) {
 		this->condition |= condition;
 	}
 
-	//‰º‚°‚é
+	//ä¸‹ã’ã‚‹
 	void down(const ImCounterCond condition) {
 		constexpr ImCounterCond all = static_cast<ImCounterCond>(std::numeric_limits<std::underlying_type_t<ImCounterCond>>::max());
 		this->condition &= all ^ condition;
 	}
 
-	//condition‚ğæ“¾.
+	//conditionã‚’å–å¾—.
 	ImCounterCond getCondition()const {
 		return this->condition;
 	}
 
-	//‰Šú’l‚©‚Ç‚¤‚© reset‚©‰Šú->true ‚»‚êˆÈŠO->false
-	//ImCounterCond::Repeat‚Ìê‡‚Í1ƒ‹[ƒv‚ªI‚í‚é–ˆ‚É‰Šú‰»‚³‚ê‚é‚±‚Æ‚É’ˆÓ.
+	//åˆæœŸå€¤ã‹ã©ã†ã‹ resetã‹åˆæœŸ->true ãã‚Œä»¥å¤–->false
+	//ImCounterCond::Repeatã®å ´åˆã¯1ãƒ«ãƒ¼ãƒ—ãŒçµ‚ã‚ã‚‹æ¯ã«åˆæœŸåŒ–ã•ã‚Œã‚‹ã“ã¨ã«æ³¨æ„.
 	bool isInitialValue() {
 		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>)
 			return (count == 0);
@@ -278,12 +278,12 @@ public:
 			return (count == std::chrono::steady_clock::time_point());
 	}
 
-	//—§‚Á‚Ä‚¢‚é‚© •¡”‚Ìê‡‚Í‘S‚Ä—§‚Á‚Ä‚¢‚é‚©
+	//ç«‹ã£ã¦ã„ã‚‹ã‹ è¤‡æ•°ã®å ´åˆã¯å…¨ã¦ç«‹ã£ã¦ã„ã‚‹ã‹
 	bool isUp(const ImCounterCond condition) const {
 		return ((this->condition & condition) == condition);
 	}
 
-	//~‚è‚Ä‚¢‚é‚© •¡”‚Ìê‡‚Í‘S‚Ä~‚è‚Ä‚¢‚é‚©
+	//é™ã‚Šã¦ã„ã‚‹ã‹ è¤‡æ•°ã®å ´åˆã¯å…¨ã¦é™ã‚Šã¦ã„ã‚‹ã‹
 	bool isDown(const ImCounterCond condition) const {
 		return ((this->condition & condition) == ImCounterCond::NONE);
 	}
@@ -308,21 +308,21 @@ public://operators
 
 
 public:
-	//count‚ğƒ†[ƒU‚ª‚¢‚¶‚ê‚È‚¢‚æ‚¤‚É‚·‚é.
+	//countã‚’ãƒ¦ãƒ¼ã‚¶ãŒã„ã˜ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹.
 	friend class ImAnime::Internal::CounterManager;
 
 private:
-	//–{‘Ì
+	//æœ¬ä½“
 	Type count = {};
 	ImCounterCond condition = ImCounterCond::NONE;
 	bool isPause = false;
 };
 
 
-//ImCounter‚ğ‘€ì‚·‚é.
+//ImCounterã‚’æ“ä½œã™ã‚‹.
 namespace ImAnime::Internal {
 
-	//ƒJƒEƒ“ƒ^[‚É‚Í‚±‚±‚©‚çƒAƒNƒZƒX‚·‚é.
+	//ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ã«ã¯ã“ã“ã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹.
 	class CounterManager {
 	public:
 		template<ImAnimeCounterType T>
@@ -358,46 +358,46 @@ namespace ImAnime::Internal {
 }
 
 
-//Šî–{“I‚È‰‰Z‚È‚Ç
+//åŸºæœ¬çš„ãªæ¼”ç®—ãªã©
 namespace ImAnime::Internal {
 
-	//•‚“®¬”
+	//æµ®å‹•å°æ•°
 	template<typename T>
 	concept FloatingPoint = std::floating_point<T>;
 
-	//®”
+	//æ•´æ•°
 	template<typename T>
 	concept Integral = std::integral<T>;
 
-	//®”or•‚“®¬”
+	//æ•´æ•°oræµ®å‹•å°æ•°
 	template<typename T>
 	concept IntOrFloat = Integral<T> || FloatingPoint<T>;
 
-	//‰ÁZ‚ª‰Â”\‚©
+	//åŠ ç®—ãŒå¯èƒ½ã‹
 	template<typename T, typename U>
 	concept IsAddAble = requires (T left, U right) {
 		{left + right}->std::common_with<T>;
 	};
 
-	//Œ¸Z‚ª‰Â”\‚©
+	//æ¸›ç®—ãŒå¯èƒ½ã‹
 	template<typename T, typename U>
 	concept IsSubAble = requires (T left, U right) {
 		{left - right}->std::common_with<T>;
 	};
 
-	//Š|Z‚ª‰Â”\‚©
+	//æ›ç®—ãŒå¯èƒ½ã‹
 	template<typename T, typename U>
 	concept IsMultiAble = requires (T left, U right) {
 		{left* right}->std::common_with<T>;
 	};
 
-	//™Z‚ª‰Â”\‚©
+	//å¾ç®—ãŒå¯èƒ½ã‹
 	template<typename T, typename U>
 	concept IsDivAble = requires (T left, U right) {
 		{left / right}->std::common_with<T>;
 	};
 
-	//l‘¥‰‰Z‚ª‰Â”\
+	//å››å‰‡æ¼”ç®—ãŒå¯èƒ½
 	template<typename T>
 	concept ValueType = IsAddAble<T, T> && IsSubAble<T, T> && IsMultiAble<T, T> && IsDivAble<T, T>;
 
@@ -405,10 +405,10 @@ namespace ImAnime::Internal {
 
 }
 
-//ImGui‚ÌŠÖ”ŒÄ‚Ño‚µ
+//ImGuiã®é–¢æ•°å‘¼ã³å‡ºã—
 namespace ImAnime::Internal {
 
-	//ŒÄ‚Ño‚·ImGui‚ÌŠÖ”
+	//å‘¼ã³å‡ºã™ImGuiã®é–¢æ•°
 	enum class ImGuiFunctionType : FlagUnderlyingType {
 		NONE,
 		DUMMY,
@@ -564,11 +564,11 @@ namespace ImAnime::Internal {
 	private:
 
 		void call() {
-			const auto counterCond = counter.getCondition();//ó‘Ô‚ğæ“¾
+			const auto counterCond = counter.getCondition();//çŠ¶æ…‹ã‚’å–å¾—
 
-			if (currentCount >= count) {//I—¹‚µ‚Ä‚¢‚é
+			if (currentCount >= count) {//çµ‚äº†ã—ã¦ã„ã‚‹
 
-				//Repeató‘Ô‚È‚çƒJƒEƒ“ƒg‚ğƒŠƒZƒbƒg‚·‚é
+				//RepeatçŠ¶æ…‹ãªã‚‰ã‚«ã‚¦ãƒ³ãƒˆã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹
 				if (counter.isUp(ImCounterCond::REPEAT))
 					counter.reset();
 
@@ -578,7 +578,7 @@ namespace ImAnime::Internal {
 					callImGuiFunction(end);
 
 			}
-			else {//‚Í‚¶‚ß&•Ï‰»’†
+			else {//ã¯ã˜ã‚&å¤‰åŒ–ä¸­
 
 				if (counter.isUp(ImCounterCond::REVERSE))
 					currentCount = count - currentCount;
@@ -587,15 +587,15 @@ namespace ImAnime::Internal {
 
 				callImGuiFunction(result);
 
-				//pauseó‘Ô‚Å‚È‚¢‚Ì‚Å‚ ‚ê‚Îi‚ß‚é
+				//pauseçŠ¶æ…‹ã§ãªã„ã®ã§ã‚ã‚Œã°é€²ã‚ã‚‹
 				if (counter.isDown(ImCounterCond::PAUSE)) {
-					ImAnime::Internal::CounterManager::add(counter);//ƒJƒEƒ“ƒg‚ği‚ß‚é
+					ImAnime::Internal::CounterManager::add(counter);//ã‚«ã‚¦ãƒ³ãƒˆã‚’é€²ã‚ã‚‹
 				}
 			}
 
 		}
 
-	private://ŒvZ
+	private://è¨ˆç®—
 
 		auto calc() {
 			if (this->animeType == ImAnimeType::LINEAR)
@@ -606,13 +606,13 @@ namespace ImAnime::Internal {
 			assert(true);
 		}
 
-		//üŒ`
+		//ç·šå½¢
 		T linear() {
 			T result = (this->diff / this->count) * currentCount;
 			return result;
 		}
 
-		//©æ y=x*x
+		//è‡ªä¹— y=x*x
 		T square() {
 			auto per = this->currentCount / this->count;
 			auto mul = per * per;
@@ -654,14 +654,14 @@ namespace ImAnime {
 
 	/*
 	Args:
-		1. ImCounter<Counter>          //ì¬‚µ‚½ImCounter
-		2. ImAnimeCountType<Counter>   //ImCounter<ImAnimeTime>‚È‚çƒAƒjƒ[ƒVƒ‡ƒ“I—¹‚Ü‚Å‚Ì•b”(float)‚ğw’èC‚»‚êˆÈŠO‚È‚çI—¹‚Ü‚Å‚Ì‰ñ”‚ğw’è
-		3. T                           //ŠJn‚Ì’l Œ^‚Í‚»‚ê‚¼‚ê‚É‘Î‰‚³‚¹‚é(—áFDummy -> ImVec2)
-		4. T                           //I—¹‚Ì’l Œ^‚Í‚»‚ê‚¼‚ê‚É‘Î‰‚³‚¹‚é(—áFDummy -> ImVec2)
-		5. ImAnimeType                 //‚Ç‚Ì‚æ‚¤‚ÉƒAƒjƒ[ƒVƒ‡ƒ“‚³‚¹‚é‚Ì‚©‚ğw’è ƒfƒtƒHƒ‹ƒg‚ÅüŒ`==ImAnimeType::LINEAR
+		1. ImCounter<Counter>          //ä½œæˆã—ãŸImCounter
+		2. ImAnimeCountType<Counter>   //ImCounter<ImAnimeTime>ãªã‚‰ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³çµ‚äº†ã¾ã§ã®ç§’æ•°(float)ã‚’æŒ‡å®šï¼Œãã‚Œä»¥å¤–ãªã‚‰çµ‚äº†ã¾ã§ã®å›æ•°ã‚’æŒ‡å®š
+		3. T                           //é–‹å§‹æ™‚ã®å€¤ å‹ã¯ãã‚Œãã‚Œã«å¯¾å¿œã•ã›ã‚‹(ä¾‹ï¼šDummy -> ImVec2)
+		4. T                           //çµ‚äº†æ™‚ã®å€¤ å‹ã¯ãã‚Œãã‚Œã«å¯¾å¿œã•ã›ã‚‹(ä¾‹ï¼šDummy -> ImVec2)
+		5. ImAnimeType                 //ã©ã®ã‚ˆã†ã«ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã•ã›ã‚‹ã®ã‹ã‚’æŒ‡å®š ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã§ç·šå½¢==ImAnimeType::LINEAR
 
 	Exception:
-		ŒÄ‚Ño‚·ImGui‚ÌŠÖ”‚É‰‚¶‚é
+		å‘¼ã³å‡ºã™ImGuiã®é–¢æ•°ã«å¿œã˜ã‚‹
 	*/
 
 
