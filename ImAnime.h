@@ -574,7 +574,11 @@ namespace ImAnime::Internal {
 				if (counter.isUp(ImCounterCond::REPEAT))
 					counter.reset();
 
-				callImGuiFunction(end/*, args...*/);
+				if (counter.isUp(ImCounterCond::REVERSE))
+					callImGuiFunction(begin);
+				else
+					callImGuiFunction(end);
+
 			}
 			else {//はじめ&変化中
 
@@ -584,12 +588,13 @@ namespace ImAnime::Internal {
 				auto result = this->calc();
 
 				callImGuiFunction(result);
+
+				//pause状態でないのであれば進める
+				if (counter.isDown(ImCounterCond::PAUSE)) {
+					ImAnime::Internal::CounterManager::add(counter);//カウントを進める
+				}
 			}
 
-			//pause状態でないのであれば進める
-			if (counter.isDown(ImCounterCond::PAUSE)) {
-				ImAnime::Internal::CounterManager::add(counter);//カウントを進める
-			}
 		}
 
 	private://計算
@@ -599,8 +604,8 @@ namespace ImAnime::Internal {
 				return begin + this->linear();
 			else if (this->animeType == ImAnimeType::SQUARE)
 				return begin + this->square();
-			else
-				assert(true);
+
+			assert(true);
 		}
 
 		//線形
