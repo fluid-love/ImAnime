@@ -29,12 +29,16 @@ SOFTWARE.
 ImAnime Version:
 	ver1.0.0 リリース 2021/05/07
 
+	ver1.1.0 リリース 2021/05/11
+		ImAnimeDemo.cppの充実
+		ImAnimeSにて静的なのを追加
+
 */
 
 /*
 ImGuiの既存の関数を利用しているだけで,ImGui内部の情報を直接いじることはない.
 
-名前空間はImAnimeとImAnime::Internal.
+名前空間はImAnimeとImAnimeSとImAnime::Internal.
 名前空間ImAnime::Internalは呼び出さないこと.
 
 */
@@ -43,7 +47,7 @@ ImGuiの既存の関数を利用しているだけで,ImGui内部の情報を直
 Global Namespace:
 	typename       :ImSecond ImAnimeTime ImAnimeCountType
 	concept        :ImAnimeCounterType
-	class enum ... :ImCounter ImAnimeType ImAnimePop ImCounterCond
+	class enum ... :ImCounter ImAnimeType ImAnimePop ImCounterCond ImAnimeVec2
 */
 
 /*
@@ -58,6 +62,8 @@ ver1.0.0
 	SetNextItemWidth
 	Dummy
 
+ver1.1.0
+	ImAnimeS::Dymmy
 
 */
 
@@ -216,10 +222,15 @@ public:
 		else if (count == ImAnime::Internal::TimePoint()) {
 			;
 		}
+		else if (isPause) {
+			time = Duration(count - ImAnime::Internal::TimePoint()).count();
+		}
 		else {
 			ImAnimeTime currentTime = std::chrono::high_resolution_clock::now();
 			time = Duration(currentTime - count).count();
 		}
+
+
 		return time;
 	}
 
@@ -252,7 +263,7 @@ public:
 	//初期値かどうか
 	//ImCounterCond::Repeatの場合は1ループが終わる毎に初期化されることに注意.
 	bool isInitialValue() {
-			return (count == std::chrono::steady_clock::time_point());
+		return (count == std::chrono::steady_clock::time_point());
 	}
 
 	//立っているか 複数の場合は全て立っているか
@@ -589,10 +600,12 @@ namespace ImAnime::Internal {
 
 }
 
+
+//dynamic
 namespace ImAnime::Internal {
 
 	template<ImGuiFunctionType FuncType, ValueType T, ImAnimeCounterType Counter, typename ...Params>
-	class Common final {
+	class Anime final {
 	private:
 		const T& begin;
 		const T& end;
@@ -606,7 +619,7 @@ namespace ImAnime::Internal {
 	public:
 
 
-		Common(
+		Anime(
 			ImCounter<Counter>& counter,
 			const ImAnimeCountType<Counter> count,
 			const T& begin,
@@ -624,7 +637,7 @@ namespace ImAnime::Internal {
 			this->call();
 		}
 
-		~Common() = default;
+		~Anime() = default;
 
 	private:
 
@@ -764,7 +777,7 @@ namespace ImAnime::Internal {
 			using Type = ImGuiFunctionType;
 			if constexpr (FuncType == Type::DUMMY)
 				ImGui::Dummy(val);
-			if constexpr (FuncType == Type::PUSH_STYLE_COLOR) {
+			else if constexpr (FuncType == Type::PUSH_STYLE_COLOR) {
 				static_assert(sizeof...(Params) > 0);
 				pushStyleColor(this->params, val);
 			}
@@ -782,7 +795,246 @@ namespace ImAnime::Internal {
 		}
 
 	};
+}
 
+
+//static
+
+struct ImAnimeVec2 final {
+	float x = 0.0f;
+	float y = 0.0f;
+
+	constexpr ImAnimeVec2() = default;
+	explicit constexpr ImAnimeVec2(const float x, const float y) noexcept :x(x), y(y) {}
+
+	ImAnimeVec2 operator+(const ImAnimeVec2& r) const {
+		return ImAnimeVec2(x + r.x, y + r.y);
+	}
+
+	ImAnimeVec2 operator-(const ImAnimeVec2& r) const {
+		return ImAnimeVec2(x - r.x, y - r.y);
+	}
+
+	ImAnimeVec2 operator*(const ImAnimeVec2& r) const {
+		return ImAnimeVec2(x * r.x, y * r.y);
+	}
+
+	ImAnimeVec2 operator/(const ImAnimeVec2& r) const {
+		return ImAnimeVec2(x / r.x, y / r.y);
+	}
+
+	ImAnimeVec2 operator+(const float r) const {
+		return ImAnimeVec2(x + r, y + r);
+	}
+
+	ImAnimeVec2 operator-(const float r) const {
+		return ImAnimeVec2(x - r, y - r);
+	}
+
+	ImAnimeVec2 operator*(const float r) const {
+		return ImAnimeVec2(x * r, y * r);
+	}
+
+	ImAnimeVec2 operator/(const float r) const {
+		return ImAnimeVec2(x / r, y / r);
+	}
+
+
+	operator ImVec2()const noexcept {
+		return ImVec2(x, y);
+	}
+
+};
+
+namespace ImAnime::Internal {
+
+
+}
+
+
+namespace ImAnime::Internal {
+
+	template<
+		ImGuiFunctionType FuncType,
+		ImAnimeCounterType Counter,
+		ImAnimeCountType<Counter> Count,
+		typename T,
+		T Begin,
+		T End,
+		ImAnimeType AnimeType = ImAnimeType::LINEAR,
+		typename... Params
+	>
+		class AnimeS final {
+		private:
+			const T diff = End - Begin;
+			ImCounter<Counter>& counter;
+			ImAnimeCountType<Counter> oldCount;
+			const std::tuple<Params...> params;
+
+		public:
+			AnimeS(ImCounter<Counter>& counter) :counter(counter) {
+				this->call();
+			}
+
+			~AnimeS() = default;
+
+		private:
+
+			//回数でカウントする場合
+			template<typename U = Counter>
+			std::enable_if_t<!std::is_same_v<U, ImAnimeTime>> call() {
+				const auto counterCond = counter.getCondition();//状態を取得
+				this->oldCount = CounterManager::get(counter);
+
+				if (oldCount >= Count) {//終了している
+
+					//Repeat状態ならカウントをリセットする
+					if (counter.isUp(ImCounterCond::REPEAT))
+						counter.reset();
+
+					if (counter.isUp(ImCounterCond::REVERSE))
+						callImGuiFunction(Begin);
+					else
+						callImGuiFunction(End);
+
+				}
+				else {//はじめ&変化中
+
+					if (counter.isUp(ImCounterCond::REVERSE))
+						oldCount = Count - oldCount;
+
+
+					auto result = this->calc();
+
+					callImGuiFunction(result);
+
+				}
+
+				//pause状態でないのであれば進める
+				if (counter.isDown(ImCounterCond::PAUSE)) {
+					ImAnime::Internal::CounterManager::add(counter);//カウントを進める
+				}
+			}
+
+			//時間でカウントする場合
+			template<typename U = Counter>
+			std::enable_if_t<std::is_same_v<U, ImAnimeTime>> call() {
+				const auto counterCond = counter.getCondition();
+
+				ImAnimeTime currentCount = std::chrono::high_resolution_clock::now();
+				const ImAnimeTime oldTime = CounterManager::get(counter);
+				this->oldCount = std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>(currentCount - oldTime).count();
+
+				//pause
+				auto elapsed = [](const TimePoint& left, const TimePoint& right)->std::chrono::milliseconds const {
+					return std::chrono::duration_cast<std::chrono::milliseconds>(left - right);
+				};
+				auto getElapsedTime = [](const TimePoint& left, const TimePoint& right)->ImAnimeSecond {
+					return std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>(left - right).count();
+				};
+
+				if (counter.isUp(ImCounterCond::PAUSE)) {
+					//初回のみ
+					if (!CounterManager::getPause(counter)) {
+						//経過時間をcountにset
+						CounterManager::set(counter, TimePoint() + std::chrono::milliseconds(elapsed(currentCount, oldTime)));
+						CounterManager::setPause(counter, true);
+						oldCount = getElapsedTime(currentCount, oldTime);
+					}
+					else {
+						oldCount = getElapsedTime(oldTime, TimePoint());
+					}
+				}
+				else {
+					//pauseが降ろされた直後の処理（一回だけ）
+					if (CounterManager::getPause(counter)) {
+						oldCount = getElapsedTime(oldTime, TimePoint());
+						CounterManager::set(counter, currentCount - std::chrono::milliseconds(elapsed(oldTime, TimePoint())));
+						CounterManager::setPause(counter, false);//降ろす
+					}
+				}
+
+				//初回
+				if (oldTime == TimePoint()) {
+					if (counter.isDown(ImCounterCond::PAUSE)) {
+						CounterManager::set(counter, currentCount);
+					}
+
+					callImGuiFunction(Begin);
+				}
+				else if (oldCount > Count) {//終了
+					if (counter.isUp(ImCounterCond::REPEAT)) {
+						counter.reset();
+					}
+
+
+					if (counter.isUp(ImCounterCond::REVERSE))
+						callImGuiFunction(Begin);
+					else
+						callImGuiFunction(End);
+
+				}
+				else { //変化中
+
+					if (counter.isUp(ImCounterCond::REVERSE))
+						oldCount = Count - oldCount;
+
+					auto result = this->calc();
+					callImGuiFunction(result);
+				}
+
+			}
+
+		private://計算
+
+			auto calc() {
+				if constexpr(AnimeType == ImAnimeType::LINEAR)
+					return Begin + this->linear();
+				else if constexpr(AnimeType == ImAnimeType::SQUARE)
+					return Begin + this->square();
+
+				assert(true);
+			}
+
+			//線形
+			T linear() {
+				T result = (this->diff / Count) * oldCount;
+				return result;
+			}
+
+			//自乗 y=x*x
+			T square() {
+				auto per = this->oldCount / Count;
+				auto mul = per * per;
+				T result = this->diff * mul;
+				return result;
+			}
+
+		private://ImGui Function
+
+			void callImGuiFunction(const T& val) {
+				using Type = ImGuiFunctionType;
+				if constexpr (FuncType == Type::DUMMY)
+					ImGui::Dummy(val);
+				else if constexpr (FuncType == Type::PUSH_STYLE_COLOR) {
+					static_assert(sizeof...(Params) > 0);
+					pushStyleColor(this->params, val);
+				}
+				else if constexpr (FuncType == Type::PUSH_STYLE_VAR) {
+					static_assert(sizeof...(Params) > 0);
+					pushStyleVar(this->params, val);
+				}
+				else if constexpr (FuncType == Type::SET_NEXT_WINDOW_BG_ALPHA)
+					ImGui::SetNextWindowBgAlpha(val);
+				else if constexpr (FuncType == Type::SET_NEXT_WINDOW_SIZE)
+					ImGui::SetNextWindowSize(val);
+				else if constexpr (FuncType == Type::SET_NEXT_ITEM_WIDTH)
+					ImGui::SetNextItemWidth(val);
+
+			}
+
+
+	};
 
 
 }
@@ -804,22 +1056,22 @@ namespace ImAnime {
 
 
 	template<ImAnimeCounterType Counter>
-	using PushStyleColor = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::PUSH_STYLE_COLOR, ImVec4, Counter, ImGuiCol>;
+	using PushStyleColor = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::PUSH_STYLE_COLOR, ImVec4, Counter, ImGuiCol>;
 
 	template<typename T, ImAnimeCounterType Counter>
-	using PushStyleVar = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::PUSH_STYLE_VAR, T, Counter, ImGuiStyleVar>;
+	using PushStyleVar = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::PUSH_STYLE_VAR, T, Counter, ImGuiStyleVar>;
 
 	template<ImAnimeCounterType Counter>
-	using Dummy = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::DUMMY, ImVec2, Counter>;
+	using Dummy = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::DUMMY, ImVec2, Counter>;
 
 	template<ImAnimeCounterType Counter>
-	using SetNextWindowBgAlpha = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_WINDOW_BG_ALPHA, float, Counter>;
+	using SetNextWindowBgAlpha = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_WINDOW_BG_ALPHA, float, Counter>;
 
 	template<ImAnimeCounterType Counter>
-	using SetNextWindowSize = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_WINDOW_SIZE, float, Counter>;
+	using SetNextWindowSize = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_WINDOW_SIZE, float, Counter>;
 
 	template<ImAnimeCounterType Counter>
-	using SetNextItemSize = ImAnime::Internal::Common<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_ITEM_WIDTH, float, Counter>;
+	using SetNextItemSize = ImAnime::Internal::Anime<ImAnime::Internal::ImGuiFunctionType::SET_NEXT_ITEM_WIDTH, float, Counter>;
 
 	inline void PopStyleColor(int count = 1) {
 		ImGui::PopStyleColor(count);
@@ -828,6 +1080,30 @@ namespace ImAnime {
 	inline void PopStyleVar(int count = 1) {
 		ImGui::PopStyleVar(count);
 	}
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+namespace ImAnimeS {
+
+
+	//template<ImAnimeVec2 Begin, ImAnimeVec2 End, ImAnimeCounterType Counter, ImAnimeCountType<Counter> Count, ImAnimeType AnimeType = ImAnimeType::LINEAR>
+	//using Dummy = ImAnime::Internal::SCommon<ImAnime::Internal::ImGuiFunctionType::DUMMY, Counter, Count, ImAnimeVec2, Begin, End, AnimeType>;
+
+	namespace Internal {
+		template<typename T>
+		using CountTypeToCounterType = std::conditional_t<std::is_same_v<T, ImAnimeSecond>, ImAnimeTime, T>;
+	}
+
+
+	template<ImAnimeVec2 Begin, ImAnimeVec2 End, auto Count, ImAnimeType AnimeType = ImAnimeType::LINEAR>
+	using Dummy = ImAnime::Internal::AnimeS<ImAnime::Internal::ImGuiFunctionType::DUMMY, Internal::CountTypeToCounterType<decltype(Count)>, Count, ImAnimeVec2, Begin, End, AnimeType>;
+
+
 
 }
 
