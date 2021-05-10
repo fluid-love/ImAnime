@@ -1,7 +1,7 @@
 ﻿/*
 MIT License
 
-Copyright (c) 2019-2020 fluid-love
+Copyright (c) 2021- fluid-love
 
 https://github.com/fluid-love/ImAnime
 
@@ -41,9 +41,9 @@ ImGuiの既存の関数を利用しているだけで,ImGui内部の情報を直
 
 /*
 Global Namespace:
-	型名             :ImSecond ImAnimeTime ImAnimeCountType
-	コンセプト名     :ImAnimeCounterType
-	class enum ...名 :ImCounter ImAnimeType ImAnimePop ImCounterCond
+	typename       :ImSecond ImAnimeTime ImAnimeCountType
+	concept        :ImAnimeCounterType
+	class enum ... :ImCounter ImAnimeType ImAnimePop ImCounterCond
 */
 
 /*
@@ -180,12 +180,12 @@ using ImAnime::Internal::operator==;
 //counter
 /*
 ユーザはこれを保持する必要がある.
-countはその型で表現できる最大値より小さい場合はカウントされ続ける.
+countはその型で表現できる最大値より小さい場合はカウントされ続ける.//注
 基本的に内部のカウントは直接いじれないようにしてある．
 
 型引数は時間(s)をデフォルトで指定
 */
-template<ImAnimeCounterType Type>
+template<ImAnimeCounterType Type = ImAnimeTime>
 class ImCounter final {
 public:
 	//constructor
@@ -196,12 +196,9 @@ public:
 	~ImCounter() = default;
 
 
-private://補助
-
-	//現在のカウント(時間の場合)を計算
-	float getCurrentTime() {
-		static_assert(!std::unsigned_integral<Type>, "ERROR: getCurrentTime.");
-
+public:
+	//カウントを取得 時間で管理->秒(s)
+	ImAnimeCountType<Type> getCurrentCount() {
 		ImAnimeSecond time = 0.0f;
 
 		using Duration = std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>;
@@ -212,7 +209,7 @@ private://補助
 				time = Duration(count - ImAnime::Internal::TimePoint()).count();
 			}
 			else {
-				ImAnimeSecond currentTime = std::chrono::high_resolution_clock::now();
+				ImAnimeTime currentTime = std::chrono::high_resolution_clock::now();
 				time = Duration(currentTime - count).count();
 			}
 		}
@@ -220,32 +217,15 @@ private://補助
 			;
 		}
 		else {
-			ImAnimeSecond currentTime = std::chrono::high_resolution_clock::now();
+			ImAnimeTime currentTime = std::chrono::high_resolution_clock::now();
 			time = Duration(currentTime - count).count();
 		}
 		return time;
 	}
 
-public:
-	//カウントを取得 時間で管理->秒(s) カウントで管理->回数
-	ImAnimeCountType<Type> getCurrentCount() {
-		//回数でカウントするならそのまま返すが,時間の場合は時間を計算して返す.
-		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>) {
-			return count;
-		}
-		else {
-			return getCurrentTime();
-		}
-	}
-
-	//reset countを0にする.
+	//reset countを初期化.
 	void reset() {
-		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>) {
-			count = 0;
-		}
-		else {
-			count = ImAnime::Internal::TimePoint();
-		}
+		count = ImAnime::Internal::TimePoint();
 	}
 
 	//conditionをセット.
@@ -269,12 +249,9 @@ public:
 		return this->condition;
 	}
 
-	//初期値かどうか resetか初期->true それ以外->false
+	//初期値かどうか
 	//ImCounterCond::Repeatの場合は1ループが終わる毎に初期化されることに注意.
 	bool isInitialValue() {
-		if constexpr (std::is_same_v<ImAnimeCountType<Type>, Type>)
-			return (count == 0);
-		else
 			return (count == std::chrono::steady_clock::time_point());
 	}
 
@@ -307,6 +284,7 @@ public://operators
 	}
 
 
+
 public:
 	//countをユーザがいじれないようにする.
 	friend class ImAnime::Internal::CounterManager;
@@ -317,6 +295,94 @@ private:
 	ImCounterCond condition = ImCounterCond::NONE;
 	bool isPause = false;
 };
+
+template<std::unsigned_integral Type>
+class ImCounter<Type> final {
+public:
+	//constructor
+	ImCounter() = default;
+	explicit ImCounter(const ImCounterCond condition) : condition(condition) {}//set cond
+
+	//destructor
+	~ImCounter() = default;
+
+public:
+	//現在のカウントを取得
+	Type getCurrentCount() {
+		return count;
+	}
+
+	//reset countを0にする.
+	void reset() {
+		count = 0;
+	}
+
+	//conditionをセット.
+	void changeCondition(const ImCounterCond condition) {
+		this->condition = condition;
+	}
+
+	//上げる
+	void up(const ImCounterCond condition) {
+		this->condition |= condition;
+	}
+
+	//下げる
+	void down(const ImCounterCond condition) {
+		constexpr ImCounterCond all = static_cast<ImCounterCond>(std::numeric_limits<std::underlying_type_t<ImCounterCond>>::max());
+		this->condition &= all ^ condition;
+	}
+
+	//conditionを取得.
+	ImCounterCond getCondition()const {
+		return this->condition;
+	}
+
+	//初期値かどうか つまりcountが0か
+	bool isInitialValue() {
+		return (count == 0);
+	}
+
+	//立っているか 複数の場合は全て立っているか
+	bool isUp(const ImCounterCond condition) const {
+		return ((this->condition & condition) == condition);
+	}
+
+	//降りているか 複数の場合は全て降りているか
+	bool isDown(const ImCounterCond condition) const {
+		return ((this->condition & condition) == ImCounterCond::NONE);
+	}
+
+
+public://operators
+	void operator=(const ImCounterCond condition) {
+		this->condition = condition;
+	}
+
+	void operator|=(const ImCounterCond condition) {
+		this->condition |= condition;
+	}
+
+	void operator^=(const ImCounterCond condition) {
+		this->condition ^= condition;
+	}
+
+	void operator&=(const ImCounterCond condition) {
+		this->condition &= condition;
+	}
+
+
+
+public:
+	//countをユーザがいじれないようにする.
+	friend class ImAnime::Internal::CounterManager;
+
+private:
+	//本体
+	Type count = 0;
+	ImCounterCond condition = ImCounterCond::NONE;
+};
+
 
 
 //ImCounterを操作する.
@@ -533,7 +599,7 @@ namespace ImAnime::Internal {
 		const T diff = end - begin;
 		ImCounter<Counter>& counter;
 		const ImAnimeCountType<Counter> count;
-		ImAnimeCountType<Counter> currentCount;
+		ImAnimeCountType<Counter> oldCount;
 		const ImAnimeType animeType = ImAnimeType::LINEAR;
 		const std::tuple<Params...> params;
 
@@ -552,21 +618,23 @@ namespace ImAnime::Internal {
 			end(end),
 			counter(counter),
 			count(count),
-			currentCount(CounterManager::get(counter)),
 			animeType(animeType),
 			params(std::make_tuple(params...))
 		{
-			call();
+			this->call();
 		}
 
 		~Common() = default;
 
 	private:
 
-		void call() {
+		//回数でカウントする場合
+		template<typename U = Counter>
+		std::enable_if_t<!std::is_same_v<U, ImAnimeTime>> call() {
 			const auto counterCond = counter.getCondition();//状態を取得
+			this->oldCount = CounterManager::get(counter);
 
-			if (currentCount >= count) {//終了している
+			if (oldCount >= count) {//終了している
 
 				//Repeat状態ならカウントをリセットする
 				if (counter.isUp(ImCounterCond::REPEAT))
@@ -581,16 +649,86 @@ namespace ImAnime::Internal {
 			else {//はじめ&変化中
 
 				if (counter.isUp(ImCounterCond::REVERSE))
-					currentCount = count - currentCount;
+					oldCount = count - oldCount;
+
 
 				auto result = this->calc();
 
 				callImGuiFunction(result);
 
-				//pause状態でないのであれば進める
-				if (counter.isDown(ImCounterCond::PAUSE)) {
-					ImAnime::Internal::CounterManager::add(counter);//カウントを進める
+			}
+
+			//pause状態でないのであれば進める
+			if (counter.isDown(ImCounterCond::PAUSE)) {
+				ImAnime::Internal::CounterManager::add(counter);//カウントを進める
+			}
+		}
+
+		//時間でカウントする場合
+		template<typename U = Counter>
+		std::enable_if_t<std::is_same_v<U, ImAnimeTime>> call() {
+			const auto counterCond = counter.getCondition();
+
+			ImAnimeTime currentCount = std::chrono::high_resolution_clock::now();
+			const ImAnimeTime oldTime = CounterManager::get(counter);
+			this->oldCount = std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>(currentCount - oldTime).count();
+
+			//pause
+			auto elapsed = [](const TimePoint& left, const TimePoint& right)->std::chrono::milliseconds const {
+				return std::chrono::duration_cast<std::chrono::milliseconds>(left - right);
+			};
+			auto getElapsedTime = [](const TimePoint& left, const TimePoint& right)->ImAnimeSecond {
+				return std::chrono::duration<ImAnimeSecond, std::chrono::seconds::period>(left - right).count();
+			};
+
+			if (counter.isUp(ImCounterCond::PAUSE)) {
+				//初回のみ
+				if (!CounterManager::getPause(counter)) {
+					//経過時間をcountにset
+					CounterManager::set(counter, TimePoint() + std::chrono::milliseconds(elapsed(currentCount, oldTime)));
+					CounterManager::setPause(counter, true);
+					oldCount = getElapsedTime(currentCount, oldTime);
 				}
+				else {
+					oldCount = getElapsedTime(oldTime, TimePoint());
+				}
+			}
+			else {
+				//pauseが降ろされた直後の処理（一回だけ）
+				if (CounterManager::getPause(counter)) {
+					oldCount = getElapsedTime(oldTime, TimePoint());
+					CounterManager::set(counter, currentCount - std::chrono::milliseconds(elapsed(oldTime, TimePoint())));
+					CounterManager::setPause(counter, false);//降ろす
+				}
+			}
+
+			//初回
+			if (oldTime == TimePoint()) {
+				if (counter.isDown(ImCounterCond::PAUSE)) {
+					CounterManager::set(counter, currentCount);
+				}
+
+				callImGuiFunction(begin);
+			}
+			else if (oldCount > count) {//終了
+				if (counter.isUp(ImCounterCond::REPEAT)) {
+					counter.reset();
+				}
+
+
+				if (counter.isUp(ImCounterCond::REVERSE))
+					callImGuiFunction(begin);
+				else
+					callImGuiFunction(end);
+
+			}
+			else { //変化中
+
+				if (counter.isUp(ImCounterCond::REVERSE))
+					oldCount = count - oldCount;
+
+				auto result = this->calc();
+				callImGuiFunction(result);
 			}
 
 		}
@@ -608,13 +746,13 @@ namespace ImAnime::Internal {
 
 		//線形
 		T linear() {
-			T result = (this->diff / this->count) * currentCount;
+			T result = (this->diff / this->count) * oldCount;
 			return result;
 		}
 
 		//自乗 y=x*x
 		T square() {
-			auto per = this->currentCount / this->count;
+			auto per = this->oldCount / this->count;
 			auto mul = per * per;
 			T result = this->diff * mul;
 			return result;
@@ -691,4 +829,10 @@ namespace ImAnime {
 		ImGui::PopStyleVar(count);
 	}
 
+}
+
+
+//ImAnimeDmeo.cpp
+namespace ImAnime {
+	void ShowDemoWindow();
 }
