@@ -33,6 +33,9 @@ ImAnime Version:
 		ImAnimeDemo.cppの充実
 		ImAnimeSにて静的なのを追加
 
+	ver1.1.1 リリース 2021/06/14
+		軽微な修正
+
 */
 
 /*
@@ -41,6 +44,12 @@ ImGuiの既存の関数を利用しているだけで,ImGui内部の情報を直
 名前空間はImAnimeとImAnimeSとImAnime::Internal.
 名前空間ImAnime::Internalは呼び出さないこと.
 
+*/
+
+/*
+注意
+	windows.hをインクルードしている場合は#define maxされるので，
+	"numerical_limits::max"と衝突する．
 */
 
 /*
@@ -63,7 +72,7 @@ ver1.0.0
 	Dummy
 
 ver1.1.0
-	ImAnimeS::Dymmy
+	ImAnimeS::Dummy
 
 */
 
@@ -72,6 +81,7 @@ ver1.1.0
 #include <chrono>
 #include <array>
 #include <type_traits>
+#include <limits>
 
 #include <imgui.h>
 
